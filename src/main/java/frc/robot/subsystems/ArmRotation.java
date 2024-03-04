@@ -7,6 +7,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -16,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ArmRotation extends SubsystemBase {
     private VariableLengthArmSim sim;
     private PIDFController controller;
+    private Spark motor;
+    private DutyCycleEncoder encoder;
 
     private Mechanism2d canvas;
     private MechanismLigament2d ligament;
@@ -26,6 +32,9 @@ public class ArmRotation extends SubsystemBase {
     private NetworkTable table = NetworkTableInstance.getDefault().getTable("sim");
 
     public ArmRotation() {
+        motor = new Spark(0);
+        encoder = new DutyCycleEncoder(1);
+        
         sim = new VariableLengthArmSim(
             DCMotor.getFalcon500Foc(1),
             10,
@@ -52,9 +61,13 @@ public class ArmRotation extends SubsystemBase {
         controller.setF(6.0475 * Math.cos(sim.getAngleRads()));
         controller.setSetpoint(table.getEntry("arm theta degrees").getDouble(0));
 
-        sim.setInput(controller.calculate(sim.getAngleDegrees()));
-        sim.update(.02);
-
-        ligament.setAngle(sim.getAngleDegrees());
+        if(RobotBase.isReal()) {
+            motor.setVoltage(controller.calculate(sim.getAngleDegrees()));
+            ligament.setAngle(encoder.get());
+        } else if(RobotBase.isSimulation()) {
+            sim.setInput(controller.calculate(sim.getAngleDegrees()));
+            sim.update(.02);
+            ligament.setAngle(sim.getAngleDegrees());
+        }
     }
 }
