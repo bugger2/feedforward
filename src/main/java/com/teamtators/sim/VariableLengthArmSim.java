@@ -254,6 +254,15 @@ public class VariableLengthArmSim extends LinearSystemSim<N2, N1, N1> {
 	public double getVelocityRadPerSec() {
 		return m_x.get(1, 0);
 	}
+
+	/**
+	 * Returns the current arm velocity.
+	 *
+	 * @return The current arm velocity.
+	 */
+	public double getVelocityDegreesPerSec() {
+		return Math.toDegrees(m_x.get(1, 0));
+	}
 	
 	/**
 	 * Returns the arm current draw.

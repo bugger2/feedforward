@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.subsystems.ArmRotation;
+import frc.robot.subsystems.armRotation.ArmRotation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -33,6 +33,9 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
+        m_driverController.a().onTrue(armRotation.goTo(0));
+        m_driverController.b().onTrue(armRotation.goTo(30));
+        m_driverController.x().onTrue(armRotation.goTo(-30));
     }
 
     /**
